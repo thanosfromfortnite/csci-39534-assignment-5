@@ -6,21 +6,24 @@
 """
 from PIL import Image
 
+output_dir = "output/"
+
 def bitplane_decomposition(image):
     img = image.convert('L')
     width = img.size[0]
     height = img.size[1]
     pxl = img.load()
-    bitplanes = [Image.new(mode='L', size=(width, height))] * 8
 
-    for i in range(width):
-        for j in range(height):
-            pixel = pxl[i,j]
-            for k in range(7, -1, -1):
-                bitplanes[k] = 1 if pixel >= (2 ** k) else 0
-                pixel = pixel - (2 ** k) if pixel >= (2 ** k) else pixel
-    print(bitplanes)
+    for k in range(7, -1, -1):
+        out = Image.new(mode='L', size=(width, height))
+        out_pxl = out.load()
 
-fake_img = Image.new(mode='L', size=(1,1))
-fake_img.load()[0,0] = 4
-bitplane_decomposition(fake_img)
+        for i in range(width):
+            for j in range(height):
+                out_pxl[i,j] = 255 if pxl[i,j] >= (2 ** k) else 0
+                pxl[i,j] = pxl[i,j] - (2 ** k) if pxl[i,j] >= (2 ** k) else pxl[i,j]
+
+        out.save(f"{output_dir}{k}.png")
+
+image = Image.open('dog.png')
+bitplane_decomposition(image)
